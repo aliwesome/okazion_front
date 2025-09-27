@@ -1,65 +1,60 @@
 <template>
-  <button
-    :class="buttonVariants({ variant, size, disabled })"
-    :disabled="disabled"
-    v-bind="$attrs"
-  >
-    <slot />
+  <button href="#" :class="variantClasses">
+    <h6 v-if="showTitle">{{ title }}</h6>
+    <HugeiconsIcon v-if="showIcon" :icon="icon" />
   </button>
 </template>
 
-<script setup lang="ts">
-import { tv, type VariantProps } from "tailwind-variants";
+<script setup>
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/vue'
+import { tv } from "tailwind-variants"
+import { computed } from 'vue'
 
-// Define props with defaults
-withDefaults(defineProps<Props>(), {
-  variant: "default",
-  size: "default",
-  disabled: false,
-});
+// Nuxt way: use defineProps with default values via destructuring and fallback
+const props = defineProps({
+  title: { type: String, default: 'title here' },
+  icon: { type: [String, Object], default: () => ArrowRight01Icon },
+  showTitle: { type: Boolean, default: true },
+  showIcon: { type: Boolean, default: true },
+  variant: {
+    type: String,
+    default: 'default',
+    validator: v => ['default', 'secondary', 'destructive', 'outline', 'success', 'warning', 'info'].includes(v)
+  },
+  direction: {
+    type: String,
+    default: 'left',
+    validator: v => ['left', 'right'].includes(v)
+  }
+})
 
 // Define button variants using tailwind-variants
-const buttonVariants = tv({
+const ButtonVariants = tv({
   base: [
-    "inline-flex items-center justify-center gap-2",
-    "whitespace-nowrap rounded-md text-sm font-medium",
-    "ring-offset-background transition-colors",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-    "disabled:pointer-events-none disabled:opacity-50",
+    "flex items-center gap-2 w-fit rounded-xl text-sm p-3",
+    "transition-colors",
   ],
   variants: {
     variant: {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90",
-      destructive:
-        "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      outline:
-        "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      ghost: "hover:bg-accent hover:text-accent-foreground",
-      link: "text-primary underline-offset-4 hover:underline",
+      default: "bg-orange-500 border-transparent text-primary-foreground hover:bg-orange-600",
+      black: "bg-black text-primary-foreground hover:bg-orange-500",
+      pdf: "bg-rose-500 border-transparent text-primary-foreground hover:bg-rose-600",
+      destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+      outline: "border border-gray-200 text-black hover:text-orange-500 transition-all",
+      success: "border-transparent bg-green-500 text-white hover:bg-green-600",
+      warning: "border-transparent bg-yellow-500 text-white hover:bg-yellow-600",
+      info: "border-transparent bg-blue-500 text-white hover:bg-blue-600",
     },
-    size: {
-      default: "h-10 px-4 py-2",
-      sm: "h-9 rounded-md px-3",
-      lg: "h-11 rounded-md px-8",
-      icon: "h-10 w-10",
+    direction: {
+      left: "flex-row",
+      right: "flex-row-reverse"
     },
-  },
-  defaultVariants: {
-    variant: "default",
-    size: "default",
-  },
-});
+  }
+})
 
-// Type the component props
-type ButtonVariants = VariantProps<typeof buttonVariants>;
-
-interface Props extends ButtonVariants {
-  disabled?: boolean;
-}
-
-// Inherit attributes
-defineOptions({
-  inheritAttrs: false,
-});
+const variantClasses = computed(() => ButtonVariants({
+  variant: props.variant,
+  direction: props.direction
+}))
 </script>
